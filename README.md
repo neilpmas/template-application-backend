@@ -88,6 +88,15 @@ Roles and permissions are defined in Auth0 and included in the JWT as a `permiss
 | `AUTH0_AUDIENCE` | API identifier, e.g. `https://api.yourproject.com` |
 | `DATABASE_URL` | Supabase Postgres connection string |
 
+## Testing
+
+| Type | Approach |
+|---|---|
+| Unit | JUnit 5 — domain logic, TDD |
+| Integration | Testcontainers — real Postgres, no mocks |
+
+Docker must be running locally for Testcontainers. Spring Boot 3+ has built-in support — minimal boilerplate.
+
 ## Setup
 
 > Setup instructions to be added when the scaffold is built.
