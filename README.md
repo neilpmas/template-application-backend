@@ -4,22 +4,39 @@ Spring Boot backend for the template application stack.
 
 ## Overview
 
-This is the core business logic layer. It receives requests from the BFF (Cloudflare Workers), validates the JWT on every protected request, and talks to the database.
+This is the core business logic layer. It receives requests from multiple clients, validates the JWT on every protected request, and talks to the database.
 
-It never handles auth directly — it trusts the BFF to authenticate the user and forward a valid Bearer token.
+- **From the BFF** — gRPC-Web requests with a Bearer token forwarded from Cloudflare Workers
+- **From mobile/desktop clients** — direct HTTPS requests with a Bearer token from Auth0
+
+Spring Boot validates JWTs the same way regardless of which client the request came from.
 
 ## Architecture
 
 ```
 Cloudflare Workers — BFF
+    │  gRPC-Web + Bearer token
     │
-    │  Authorization: Bearer <token>
-    ▼
-Spring Boot (Fly.io)
+    ├──────────────────────────────────────┐
+    │                                      │
+    ▼                                      │ (future)
+Spring Boot (Fly.io)         Mobile / Desktop clients
+(Spring Modulith)                Bearer token (direct)
     │
     ├──► Supabase (Postgres)
     └──► Auth0 (JWKS — token validation only)
 ```
+
+## Module Structure (Spring Modulith)
+
+Modules are defined upfront and enforced by Spring Modulith:
+
+| Module | Responsibility |
+|---|---|
+| `api` | gRPC-Web endpoint definitions, request handling |
+| `domain` | Business logic, domain model |
+| `auth` | Security config, JWT claims extraction |
+| `infrastructure` | Database access, external integrations |
 
 ## Auth
 
@@ -45,9 +62,7 @@ Protect endpoints with standard Spring Security annotations:
 
 ### Roles & Permissions
 
-Roles and permissions are defined in Auth0 and included in the JWT as a `permissions` claim. Enable **RBAC** and **Add Permissions in the Access Token** in the Auth0 API settings.
-
-Use the `permissions` claim for fine-grained access control:
+Roles and permissions are defined in Auth0 and included in the JWT as a `permissions` claim. Enable **RBAC** and **Add Permissions in the Access Token** in Auth0 API settings.
 
 ```java
 @PreAuthorize("hasAuthority('read:data')")
@@ -58,6 +73,9 @@ Use the `permissions` claim for fine-grained access control:
 | Layer | Technology |
 |---|---|
 | Framework | Spring Boot (Java) |
+| Architecture | Spring Modulith |
+| Build tool | Maven |
+| API protocol | gRPC-Web |
 | Database | Supabase (Postgres) |
 | Auth | Auth0 (JWT validation via JWKS) |
 | Hosting | Fly.io |
@@ -76,4 +94,4 @@ Use the `permissions` claim for fine-grained access control:
 
 ## Part of
 
-See [template-application-planning](https://github.com/neilpmas/template-application-planning) for the full stack overview and architecture decisions.
+See [template-application-planning](https://github.com/neilpmas/template-application-planning) for the full stack overview, architecture decisions, and project workflow.
