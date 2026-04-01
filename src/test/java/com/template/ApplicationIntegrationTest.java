@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
@@ -15,7 +16,15 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {
+                "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://test.example.com/",
+                "spring.security.oauth2.resourceserver.jwt.audiences=https://api.test.example.com",
+                "DATABASE_URL=jdbc:placeholder",
+                "spring.jpa.hibernate.ddl-auto=update"
+        }
+)
 @Testcontainers
 class ApplicationIntegrationTest {
 
@@ -32,10 +41,10 @@ class ApplicationIntegrationTest {
                 .baseUrl("http://localhost:" + port)
                 .build();
 
-        ResponseEntity<Map> response = restClient.get()
+        ResponseEntity<Map<String, Object>> response = restClient.get()
                 .uri("/health")
                 .retrieve()
-                .toEntity(Map.class);
+                .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {});
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).containsEntry("status", "ok");
