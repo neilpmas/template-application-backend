@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/template
+
+AUTH0_ISSUER_URI: https://your-tenant.auth0.com/
+AUTH0_AUDIENCE: https://api.yourproject.com
