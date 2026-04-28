@@ -4,26 +4,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClient;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 @SpringBootTest(
-        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = {
-                "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://test.example.com/",
-                "spring.security.oauth2.resourceserver.jwt.audiences=https://api.test.example.com",
-                "DATABASE_URL=jdbc:placeholder",
-                "spring.jpa.hibernate.ddl-auto=update"
-        }
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = {
+        "DATABASE_URL=jdbc:postgresql://localhost:5432/unused",
+        "R2DBC_URL=r2dbc:postgresql://localhost:5432/unused"
+    }
 )
 @Testcontainers
 class ApplicationIntegrationTest {
@@ -37,16 +28,13 @@ class ApplicationIntegrationTest {
 
     @Test
     void healthEndpointReturnsOk() {
-        RestClient restClient = RestClient.builder()
-                .baseUrl("http://localhost:" + port)
-                .build();
-
-        ResponseEntity<Map<String, Object>> response = restClient.get()
-                .uri("/health")
-                .retrieve()
-                .toEntity(new ParameterizedTypeReference<Map<String, Object>>() {});
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).containsEntry("status", "ok");
+        WebTestClient.bindToServer()
+            .baseUrl("http://localhost:" + port)
+            .build()
+            .get().uri("/health")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody()
+            .jsonPath("$.status").isEqualTo("ok");
     }
 }
