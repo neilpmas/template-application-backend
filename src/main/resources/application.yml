@@ -13,3 +13,12 @@ spring:
         jwt:
           issuer-uri: ${AUTH0_ISSUER_URI:https://test.example.com/}
           audiences: ${AUTH0_AUDIENCE:https://api.test.example.com}
+
+app:
+  environment: ${APP_ENVIRONMENT:local}
+
+grpc:
+  server:
+    port: 9090
+    security:
+      enabled: false   # auth is handled at the HTTP layer by the BFF
