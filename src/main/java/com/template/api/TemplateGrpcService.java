@@ -13,7 +13,7 @@ public class TemplateGrpcService extends TemplateServiceGrpc.TemplateServiceImpl
     @Value("${spring.application.version:0.0.1}")
     private String version;
 
-    @Value("${spring.profiles.active:local}")
+    @Value("${app.environment:local}")
     private String environment;
 
     @Override

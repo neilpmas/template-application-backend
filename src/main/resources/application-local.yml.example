@@ -6,3 +6,4 @@ spring:
 
 AUTH0_ISSUER_URI: https://your-tenant.auth0.com/
 AUTH0_AUDIENCE: https://api.yourproject.com
+APP_ENVIRONMENT: local
