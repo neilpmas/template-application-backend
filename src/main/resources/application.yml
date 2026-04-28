@@ -3,9 +3,8 @@ spring:
     name: template-application
   datasource:
     url: ${DATABASE_URL}
-  jpa:
-    hibernate:
-      ddl-auto: validate
+  r2dbc:
+    url: ${R2DBC_URL}
   flyway:
     enabled: true
   security:
