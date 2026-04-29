@@ -5,8 +5,14 @@ spring:
     url: ${DATABASE_URL}
   r2dbc:
     url: ${R2DBC_URL}
+    pool:
+      initial-size: 1
+      max-size: 5
   flyway:
     enabled: true
+    schemas: app
+    default-schema: app
+    create-schemas: true
   security:
     oauth2:
       resourceserver:
