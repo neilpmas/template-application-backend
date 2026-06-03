@@ -133,14 +133,14 @@
 					<sourceDirectories>
 						<sourceDirectory>src/main/proto</sourceDirectory>
 					</sourceDirectories>
-					<protocVersion>3.25.1</protocVersion>
-					<binaryMavenPlugins>
-						<binaryMavenPlugin>
+					<protoc>3.25.1</protoc>
+					<plugins>
+						<plugin kind="binary-maven">
 							<groupId>io.grpc</groupId>
 							<artifactId>protoc-gen-grpc-java</artifactId>
 							<version>1.63.0</version>
-						</binaryMavenPlugin>
-					</binaryMavenPlugins>
+						</plugin>
+					</plugins>
 				</configuration>
 				<executions>
 					<execution>
