@@ -9,3 +9,15 @@ primary_region = "lhr"
   auto_stop_machines = "stop"
   auto_start_machines = true
   min_machines_running = 0
+
+[[vm]]
+  # shared-cpu-1x (the platform default this block overrides) has a ~6% CPU baseline
+  # with a burst-credit balance that resets to zero on every stop/start. Combined with
+  # scale-to-zero, a Spring Boot app's own startup (context refresh -- before any app
+  # code runs) can take 5+ minutes on a fully cold shared-cpu-1x machine, long enough
+  # that Fly's proxy gives up before the app ever binds its port. shared-cpu-2x cut a
+  # measured cold boot from 318s to 11.5s. See template-improvements.md in the
+  # task-todo-app repo for the full incident writeup.
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 2
