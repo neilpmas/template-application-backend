@@ -6,7 +6,7 @@ Spring Boot backend for the template application stack.
 
 - Spring Boot 4 + Spring Modulith — clean module boundaries enforced from day one
 - OAuth 2.0 resource server — validates Auth0 JWTs on every protected request
-- gRPC-Web endpoint — accepts calls from the BFF (Cloudflare Workers)
+- Connect protocol endpoint — accepts calls from the BFF (Cloudflare Workers), via [`connectrpc-spring-boot-starter`](https://github.com/neilpmas/connectrpc-spring-boot)
 - R2DBC + Flyway — reactive database access, schema migrations run automatically on deploy
 - Testcontainers integration tests — real Postgres, no mocks, minimal boilerplate
 - GitHub Actions CI — build, test, deploy to Fly.io on merge to main
@@ -16,28 +16,31 @@ Spring Boot backend for the template application stack.
 
 This is the core business logic layer. It receives authenticated requests from two types of client and validates the JWT the same way regardless of origin:
 
-- **From the BFF** — gRPC-Web requests with a Bearer token forwarded by Cloudflare Workers
+- **From the BFF** — Connect protocol requests with a Bearer token forwarded by Cloudflare Workers
 - **From mobile/desktop clients** — direct HTTPS requests with a Bearer token from Auth0
+
+Connect protocol is served by [`connectrpc-spring-boot-starter`](https://github.com/neilpmas/connectrpc-spring-boot), a Maven Central library — no hand-rolled endpoint code lives in this repo. It auto-configures a `/connect/{service}/{method}` endpoint directly from the existing gRPC service definitions (`TemplateGrpcService`), so adding a new RPC only means adding it to the `.proto` file and implementing the gRPC service as normal. gRPC-Web was the original plan here but never actually worked — it's a different wire format from native gRPC, not gRPC-over-HTTP/1.1, so it was never compatible with this backend's plain gRPC service. Full rationale in [template-application-planning](https://github.com/neilpmas/template-application-planning#bff--spring-boot).
 
 ## Architecture
 
-```
-Cloudflare Workers (BFF)          Mobile / Desktop clients
-         │                                   │
-         │  gRPC-Web + Bearer token          │  HTTPS + Bearer token
-         │                                   │
-         └──────────────┬────────────────────┘
-                        │
-                        ▼
-             Spring Boot on Fly.io
-             (Spring Modulith)
-                        │
-              ┌─────────┴─────────┐
-              │                   │
-              ▼                   ▼
-           Neon                Auth0
-        (Postgres)        (JWKS endpoint —
-                          token validation only)
+```mermaid
+C4Container
+    title Template Application Backend — Container Diagram
+
+    Container(bff, "Cloudflare Workers (BFF)", "Cloudflare Workers", "External — proxies web requests")
+    Container(mobile, "Mobile / Desktop clients", "React Native, etc.", "External — call the backend directly")
+
+    System_Boundary(backend, "Spring Boot Backend") {
+        Container(app, "Spring Boot Application", "Java, WebFlux, Spring Modulith", "Core business logic, hosted on Fly.io")
+    }
+
+    System_Ext(neon, "Neon", "Postgres")
+    System_Ext(auth0, "Auth0", "JWKS endpoint — token validation only")
+
+    Rel(bff, app, "Calls", "Connect protocol, Bearer token")
+    Rel(mobile, app, "Calls", "HTTPS, Bearer token")
+    Rel(app, neon, "Reads/writes", "R2DBC (app) / JDBC (Flyway)")
+    Rel(app, auth0, "Validates JWTs", "JWKS")
 ```
 
 ## Module Structure (Spring Modulith)
@@ -80,13 +83,13 @@ Roles and permissions are defined in Auth0 and included in the JWT as a `permiss
 
 | Layer | Technology | Version |
 |---|---|---|
-| Framework | Spring Boot | 4.0.6 |
-| Architecture | Spring Modulith | 2.0.6 |
+| Framework | Spring Boot | 4.1.0 |
+| Architecture | Spring Modulith | 2.1.0 |
 | Language | Java | 25 |
 | Build | Maven | (wrapper included) |
-| API protocol | gRPC-Web | — |
+| API protocol | Connect protocol | — |
 | Database client | R2DBC (reactive) | via Spring Data R2DBC |
-| Migrations | Flyway | 12.5.0 |
+| Migrations | Flyway | 13.3.0 |
 | Auth | Auth0 JWT (JWKS) | — |
 | Hosting | Fly.io | — |
 
