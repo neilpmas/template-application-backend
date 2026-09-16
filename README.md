@@ -83,13 +83,13 @@ Roles and permissions are defined in Auth0 and included in the JWT as a `permiss
 
 | Layer | Technology | Version |
 |---|---|---|
-| Framework | Spring Boot | 4.1.0 |
-| Architecture | Spring Modulith | 2.1.0 |
-| Language | Java | 25 |
+| Framework | Spring Boot | 4.1.1 |
+| Architecture | Spring Modulith | 2.1.1 |
+| Language | Java | 26 |
 | Build | Maven | (wrapper included) |
 | API protocol | Connect protocol | — |
 | Database client | R2DBC (reactive) | via Spring Data R2DBC |
-| Migrations | Flyway | 13.3.0 |
+| Migrations | Flyway | 13.6.0 |
 | Auth | Auth0 JWT (JWKS) | — |
 | Hosting | Fly.io | — |
 
@@ -112,7 +112,7 @@ Flyway migrations live in `src/main/resources/db/migration/` and run automatical
 
 ### Prerequisites
 
-- Java 25
+- Java 26
 - Docker (for Testcontainers integration tests)
 - A Postgres instance (local Docker or a Neon dev branch)
 
