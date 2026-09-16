@@ -14,7 +14,7 @@
 	<name>template-application</name>
 	<description>Template application backend</description>
 	<properties>
-		<java.version>25</java.version>
+		<java.version>26</java.version>
 		<spring-modulith.version>2.1.1</spring-modulith.version>
 		<flyway.version>13.6.0</flyway.version>
 	</properties>
@@ -137,26 +137,6 @@
 				<artifactId>protoc-gen-grpc-java</artifactId>
 				<version>1.84.0</version>
 			</dependency>
-			<dependency>
-				<groupId>io.grpc</groupId>
-				<artifactId>protoc-gen-grpc-java</artifactId>
-				<version>1.84.0</version>
-			</dependency>
-			<dependency>
-				<groupId>io.grpc</groupId>
-				<artifactId>protoc-gen-grpc-java</artifactId>
-				<version>1.84.0</version>
-			</dependency>
-			<dependency>
-				<groupId>io.grpc</groupId>
-				<artifactId>protoc-gen-grpc-java</artifactId>
-				<version>1.84.0</version>
-			</dependency>
-			<dependency>
-				<groupId>io.grpc</groupId>
-				<artifactId>protoc-gen-grpc-java</artifactId>
-				<version>1.84.0</version>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -179,7 +159,7 @@
 						<plugin kind="binary-maven">
 							<groupId>io.grpc</groupId>
 							<artifactId>protoc-gen-grpc-java</artifactId>
-							<version>1.63.0</version>
+							<version>1.84.0</version>
 						</plugin>
 					</plugins>
 				</configuration>
