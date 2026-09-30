@@ -2,9 +2,15 @@ spring:
   application:
     name: template-application
   datasource:
+    # JDBC, used only by Flyway for migrations -- the application itself talks R2DBC below.
+    # See FlywayConfig for why this has to be wired up by hand.
     url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME:}
+    password: ${DATABASE_PASSWORD:}
   r2dbc:
     url: ${R2DBC_URL}
+    username: ${DATABASE_USERNAME:}
+    password: ${DATABASE_PASSWORD:}
     pool:
       initial-size: 1
       max-size: 5
@@ -26,6 +32,14 @@ connect:
   # to govern browser-to-server calls, so there's no legitimate case here for it;
   # leaving it on (the starter's default) just serves permissive headers nobody uses.
   cors-enabled: false
+
+logging:
+  # ECS format so `requestId`/`method`/`path`/etc. added via SLF4J's fluent
+  # addKeyValue() API land as real JSON fields, not just embedded in the message
+  # string. Built into Spring Boot since 3.4 -- no extra dependency needed.
+  structured:
+    format:
+      console: ecs
 
 app:
   environment: ${APP_ENVIRONMENT:local}
